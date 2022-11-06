@@ -11,6 +11,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   patch,
   post,
@@ -18,7 +19,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Usuario} from '../models';
+import {Credenciales, Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 import {AutenticacionService} from '../services';
 const fetch = require('node-fetch');
@@ -30,6 +31,33 @@ export class UsuarioController {
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
   ) {}
+
+  @post('/identificarPersona', {
+    responses: {
+      '200': {
+        description: 'Identificacion de usuarios',
+      },
+    },
+  })
+  async identificarPersona(@requestBody() credenciales: Credenciales) {
+    let p = await this.servicioAutenticacion.identificarPersona(
+      credenciales.Usuario,
+      credenciales.Clave,
+    );
+    if (p) {
+      let token = this.servicioAutenticacion.generarTokenJWT(p);
+      return {
+        datos: {
+          nombre: p.Nombre,
+          correo: p.Correo,
+          id: p.id,
+        },
+        tk: token,
+      };
+    } else {
+      throw new HttpErrors[401]('Datos Invalidos');
+    }
+  }
 
   @post('/usuarios')
   @response(200, {
