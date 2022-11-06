@@ -1,3 +1,4 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -7,23 +8,27 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
 import {Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
+import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
 
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository,
+    public usuarioRepository: UsuarioRepository,
+    @service(AutenticacionService)
+    public servicioAutenticacion: AutenticacionService,
   ) {}
 
   @post('/usuarios')
@@ -44,7 +49,28 @@ export class UsuarioController {
     })
     usuario: Omit<Usuario, 'id'>,
   ): Promise<Usuario> {
-    return this.usuarioRepository.create(usuario);
+    // eslint-disable-next-line prefer-const
+    let clave = this.servicioAutenticacion.generarClave();
+    // eslint-disable-next-line prefer-const
+    let claveCifrada = this.servicioAutenticacion.cifrarClave(clave);
+    usuario.Contrasena = claveCifrada;
+    // eslint-disable-next-line prefer-const
+    let p = await this.usuarioRepository.create(usuario);
+
+    //Notificar al usuario
+    // eslint-disable-next-line prefer-const
+    let destino = usuario.Correo;
+    // eslint-disable-next-line prefer-const
+    let asunto = 'Datos de registro en la plataforma';
+    // eslint-disable-next-line prefer-const
+    let contenido = `Hola ${usuario.Nombre} bienvenido a la plataforma de pedidos, su usuario es ${usuario.Correo} y su contraseña es ${clave}`;
+    fetch(
+      `http://127.0.0.1:5000/email?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ).then((data: any) => {
+      console.log(data);
+    });
+    return p;
   }
 
   @get('/usuarios/count')
@@ -52,9 +78,7 @@ export class UsuarioController {
     description: 'Usuario model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Usuario) where?: Where<Usuario>,
-  ): Promise<Count> {
+  async count(@param.where(Usuario) where?: Where<Usuario>): Promise<Count> {
     return this.usuarioRepository.count(where);
   }
 
@@ -106,7 +130,8 @@ export class UsuarioController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Usuario, {exclude: 'where'}) filter?: FilterExcludingWhere<Usuario>
+    @param.filter(Usuario, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Usuario>,
   ): Promise<Usuario> {
     return this.usuarioRepository.findById(id, filter);
   }
