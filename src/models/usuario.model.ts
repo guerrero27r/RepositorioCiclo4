@@ -11,10 +11,10 @@ export class Usuario extends Entity {
   id?: string;
 
   @property({
-    type: 'number',
-    required: false,
+    type: 'string',
+    required: true,
   })
-  Cedula: number;
+  Cedula: string;
 
   @property({
     type: 'string',
