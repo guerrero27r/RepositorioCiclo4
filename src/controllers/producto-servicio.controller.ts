@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,13 +23,16 @@ import {ProductoServicioRepository} from '../repositories';
 export class ProductoServicioController {
   constructor(
     @repository(ProductoServicioRepository)
-    public productoServicioRepository : ProductoServicioRepository,
+    public productoServicioRepository: ProductoServicioRepository,
   ) {}
 
+  // @authenticate('admin')
   @post('/producto-servicios')
   @response(200, {
     description: 'ProductoServicio model instance',
-    content: {'application/json': {schema: getModelSchemaRef(ProductoServicio)}},
+    content: {
+      'application/json': {schema: getModelSchemaRef(ProductoServicio)},
+    },
   })
   async create(
     @requestBody({
@@ -106,7 +109,8 @@ export class ProductoServicioController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(ProductoServicio, {exclude: 'where'}) filter?: FilterExcludingWhere<ProductoServicio>
+    @param.filter(ProductoServicio, {exclude: 'where'})
+    filter?: FilterExcludingWhere<ProductoServicio>,
   ): Promise<ProductoServicio> {
     return this.productoServicioRepository.findById(id, filter);
   }
