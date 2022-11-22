@@ -42,7 +42,7 @@ export class UsuarioController {
   async identificarPersona(@requestBody() credenciales: Credenciales) {
     let p = await this.servicioAutenticacion.identificarPersona(
       credenciales.Usuario,
-      credenciales.Clave,
+      credenciales.Contrasena,
     );
     if (p) {
       let token = this.servicioAutenticacion.generarTokenJWT(p);

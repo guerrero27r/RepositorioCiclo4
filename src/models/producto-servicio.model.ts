@@ -28,6 +28,12 @@ export class ProductoServicio extends Entity {
   Descripcion: string;
 
   @property({
+    type: 'string',
+    required: false,
+  })
+  Foto: string;
+
+  @property({
     type: 'number',
     required: true,
   })
@@ -42,4 +48,5 @@ export interface ProductoServicioRelations {
   // describe navigational properties here
 }
 
-export type ProductoServicioWithRelations = ProductoServicio & ProductoServicioRelations;
+export type ProductoServicioWithRelations = ProductoServicio &
+  ProductoServicioRelations;

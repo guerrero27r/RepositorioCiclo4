@@ -22,19 +22,19 @@ export class AutenticacionService {
    */
 
   generarClave() {
-    let clave = generador(8, false);
-    return clave;
+    let Contrasena = generador(8, false);
+    return Contrasena;
   }
 
-  cifrarClave(clave: string) {
-    let claveCifrada = cryptoJS.MD5(clave).toString();
+  cifrarClave(Contrasena: string) {
+    let claveCifrada = cryptoJS.MD5(Contrasena).toString();
     return claveCifrada;
   }
 
-  identificarPersona(usuario: string, clave: string) {
+  identificarPersona(usuario: string, Contrasena: string) {
     try {
       const p = this.usuarioRepository.findOne({
-        where: {Correo: usuario, Contrasena: clave},
+        where: {Correo: usuario, Contrasena: Contrasena},
       });
       if (p) {
         return p;
