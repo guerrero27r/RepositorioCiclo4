@@ -22,6 +22,7 @@ import {
 import {
   CambioClave,
   Credenciales,
+  CredencialesRecuperarClave,
   NotificacionCorreo,
   Usuario,
 } from '../models';
@@ -243,16 +244,27 @@ export class UsuarioController {
         'application/json': {},
       },
     })
-    Correo: string,
+    Credenciales: CredencialesRecuperarClave,
   ): Promise<Usuario | null> {
-    let usuario = await this.servicioAutenticacion.RecuperarClave(Correo);
+    let usuario = await this.usuarioRepository.findOne({
+      where: {
+        Correo: Credenciales.Correo,
+      },
+    });
+
     if (usuario) {
-      //servicio notificacion correo
+      let clave = this.servicioAutenticacion.generarClave();
+      console.log(clave);
+      let claveCifrada = this.servicioAutenticacion.cifrarClave(clave);
+      usuario.Contrasena = this.servicioAutenticacion.cifrarClave(clave);
+      await this.usuarioRepository.updateById(usuario.id, usuario);
+
       let datos = new NotificacionCorreo();
       datos.destinatario = usuario.Correo;
       datos.asunto = 'Cambio de Contraseña';
-      datos.mensaje = `Hola <b>${usuario.Nombre}</b>,recuperaste tu contraseña desde la opción recuperar contraseña puedes cambiar la contraseña desde esa opción en la pagina `;
+      datos.mensaje = `Hola <b>${usuario.Nombre}</b>, recuperaste tu contraseña desde la opción recuperar contraseña, la nueva clave es <b>${clave}</b> puedes cambiar la contraseña desde esa opción en la pagina `;
       this.servicioNotificacion.EnviarCorreo(datos);
+      //servicio notificacion correo
     }
     return usuario;
   }

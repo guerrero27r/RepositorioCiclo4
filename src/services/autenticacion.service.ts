@@ -40,23 +40,6 @@ export class AutenticacionService {
     }
   }
 
-  async RecuperarClave(Correo: string): Promise<Usuario | null> {
-    let usuario = await this.usuarioRepository.findOne({
-      where: {
-        Correo: Correo,
-      },
-    });
-    if (usuario) {
-      let Contrasena = this.generarClave();
-      usuario.Contrasena = this.cifrarClave(Contrasena);
-      await this.usuarioRepository.updateById(usuario.id, usuario);
-      //notificar cambio clave
-      return usuario;
-    } else {
-      return null;
-    }
-  }
-
   generarClave() {
     let Contrasena = generador(8, false);
     return Contrasena;
