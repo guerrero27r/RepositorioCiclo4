@@ -19,9 +19,14 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Credenciales, Usuario} from '../models';
+import {
+  CambioClave,
+  Credenciales,
+  NotificacionCorreo,
+  Usuario,
+} from '../models';
 import {UsuarioRepository} from '../repositories';
-import {AutenticacionService} from '../services';
+import {AutenticacionService, NotificacionService} from '../services';
 const fetch = require('node-fetch');
 
 export class UsuarioController {
@@ -30,6 +35,8 @@ export class UsuarioController {
     public usuarioRepository: UsuarioRepository,
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
+    @service(NotificacionService)
+    public servicioNotificacion: NotificacionService,
   ) {}
 
   @post('/identificarPersona', {
@@ -192,5 +199,61 @@ export class UsuarioController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.usuarioRepository.deleteById(id);
+  }
+
+  @post('/cambiar-contrasena')
+  @response(200, {
+    description: 'Cambio Clave Usuario',
+    content: {'application/json': {schema: getModelSchemaRef(CambioClave)}},
+  })
+  async CambiarClave(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(CambioClave, {
+            title: 'Cambio de clave del Usuario',
+          }),
+        },
+      },
+    })
+    CredencialesClave: CambioClave,
+  ): Promise<Boolean> {
+    let usuario = await this.servicioAutenticacion.cambiarClave(
+      CredencialesClave,
+    );
+    if (usuario) {
+      //servicio notificacion correo
+      let datos = new NotificacionCorreo();
+      datos.destinatario = usuario.Correo;
+      datos.asunto = 'Cambio de Contraseña';
+      datos.mensaje = `Hola <b>${usuario.Nombre}</b>,  Cambiaste de Contraseña si no fuiste tu ingresa a la pagina y recupera tu contraseña desde la opcion recuperar contraseña`;
+      this.servicioNotificacion.EnviarCorreo(datos);
+    }
+    return usuario != null;
+  }
+
+  @post('/recuperar-contrasena')
+  @response(200, {
+    description: 'Recuperar Clave Usuario',
+    content: {'application/json': {schema: {}}},
+  })
+  async RecuperarClave(
+    @requestBody({
+      content: {
+        'application/json': {},
+      },
+    })
+    Correo: string,
+  ): Promise<Usuario | null> {
+    let usuario = await this.servicioAutenticacion.RecuperarClave(Correo);
+    if (usuario) {
+      //servicio notificacion correo
+      let datos = new NotificacionCorreo();
+      datos.destinatario = usuario.Correo;
+      datos.asunto = 'Cambio de Contraseña';
+      datos.mensaje = `Hola <b>${usuario.Nombre}</b>,recuperaste tu contraseña desde la opción recuperar contraseña puedes cambiar la contraseña desde esa opción en la pagina `;
+      this.servicioNotificacion.EnviarCorreo(datos);
+    }
+    return usuario;
   }
 }

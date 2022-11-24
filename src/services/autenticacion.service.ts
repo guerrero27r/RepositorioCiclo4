@@ -1,7 +1,7 @@
 import {/* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import dotenv from 'dotenv';
-import {Usuario} from '../models';
+import {CambioClave, Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 
 dotenv.config();
@@ -20,6 +20,42 @@ export class AutenticacionService {
   /*
    * Add service methods here
    */
+
+  async cambiarClave(CredencialesClave: CambioClave): Promise<Usuario | null> {
+    let usuario = await this.usuarioRepository.findOne({
+      where: {
+        id: CredencialesClave.id_usuario,
+        Contrasena: CredencialesClave.Clave_actual,
+      },
+    });
+    if (usuario) {
+      usuario.Contrasena = CredencialesClave.Nueva_clave;
+      await this.usuarioRepository.updateById(
+        CredencialesClave.id_usuario,
+        usuario,
+      );
+      return usuario;
+    } else {
+      return null;
+    }
+  }
+
+  async RecuperarClave(Correo: string): Promise<Usuario | null> {
+    let usuario = await this.usuarioRepository.findOne({
+      where: {
+        Correo: Correo,
+      },
+    });
+    if (usuario) {
+      let Contrasena = this.generarClave();
+      usuario.Contrasena = this.cifrarClave(Contrasena);
+      await this.usuarioRepository.updateById(usuario.id, usuario);
+      //notificar cambio clave
+      return usuario;
+    } else {
+      return null;
+    }
+  }
 
   generarClave() {
     let Contrasena = generador(8, false);
