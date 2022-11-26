@@ -261,7 +261,7 @@ export class UsuarioController {
 
       let datos = new NotificacionCorreo();
       datos.destinatario = usuario.Correo;
-      datos.asunto = 'Cambio de Contraseña';
+      datos.asunto = 'Recuperación de Contrasena';
       datos.mensaje = `Hola <b>${usuario.Nombre}</b>, recuperaste tu contraseña desde la opción recuperar contraseña, la nueva clave es <b>${clave}</b> puedes cambiar la contraseña desde esa opción en la pagina `;
       this.servicioNotificacion.EnviarCorreo(datos);
       //servicio notificacion correo
