@@ -114,7 +114,7 @@ export class UsuarioController {
     return this.usuarioRepository.count(where);
   }
 
-  @authenticate('Asesor')
+  @authenticate('admin')
   @get('/usuarios')
   @response(200, {
     description: 'Array of Usuario model instances',

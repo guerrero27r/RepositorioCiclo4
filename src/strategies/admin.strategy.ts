@@ -22,13 +22,12 @@ export class EstrategiaAdministrador implements AuthenticationStrategy {
     let datos = this.servicioAutenticacion.validarTokenJWT(token);
     if (token) {
       if (datos) {
-        if ((datos.datos.rol = 'admin')) {
+        if (datos.data.rol == 'admin') {
           let perfil: UserProfile = Object.assign({
-            id: datos.datos.id,
-            nombre: datos.datos.nombre,
-            apellido: datos.datos.apellido,
-            correo: datos.datos.correo,
-            rol: datos.datos.rol,
+            id: datos.data.id,
+            nombre: datos.data.nombre,
+            correo: datos.data.correo,
+            rol: datos.data.rol,
           });
           return perfil;
         }
