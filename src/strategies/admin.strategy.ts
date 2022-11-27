@@ -19,12 +19,18 @@ export class EstrategiaAdministrador implements AuthenticationStrategy {
     if (token) {
       let datos = this.servicioAutenticacion.validarTokenJWT(token);
       if (datos) {
-        let perfil: UserProfile = Object.assign({
-          nombre: datos.data.nombre,
-        });
-        return perfil;
+        if ((datos.data.rol = 'admin')) {
+          let perfil: UserProfile = Object.assign({
+            id: datos.data.id,
+            nombre: datos.data.nombre,
+            apellido: datos.data.apellido,
+            correo: datos.data.correo,
+            rol: datos.data.rol,
+          });
+          return perfil;
+        }
       } else {
-        throw new HttpErrors[401]('Token falso');
+        throw new HttpErrors[401]('Token no Valido o no tiene permisos');
       }
     } else {
       throw new HttpErrors[401]('No incluyo Token');

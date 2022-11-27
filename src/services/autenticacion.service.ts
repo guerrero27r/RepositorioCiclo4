@@ -72,6 +72,7 @@ export class AutenticacionService {
           correo: usuario.Correo,
           nombre: usuario.Nombre,
           apellido: usuario.Apellido,
+          rol: usuario.Rol,
         },
       },
       process.env.CLAVE_JWT,
@@ -83,7 +84,7 @@ export class AutenticacionService {
       let datos = jwt.verify(token, process.env.CLAVE_JWT);
       return datos;
     } catch (error) {
-      return false;
+      return null;
     }
   }
 }
