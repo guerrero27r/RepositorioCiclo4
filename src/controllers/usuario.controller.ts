@@ -133,7 +133,7 @@ export class UsuarioController {
     return this.usuarioRepository.find(filter);
   }
 
-  // @authenticate('admin')
+  @authenticate('admin')
   @patch('/usuarios')
   @response(200, {
     description: 'Usuario PATCH success count',
@@ -169,7 +169,7 @@ export class UsuarioController {
   ): Promise<Usuario> {
     return this.usuarioRepository.findById(id, filter);
   }
-  //@authenticate('admin')
+  @authenticate('admin')
   @patch('/usuarios/{id}')
   @response(204, {
     description: 'Usuario PATCH success',
@@ -187,7 +187,7 @@ export class UsuarioController {
   ): Promise<void> {
     await this.usuarioRepository.updateById(id, usuario);
   }
-  //@authenticate('admin')
+  @authenticate('admin', 'Asesor')
   @put('/usuarios/{id}')
   @response(204, {
     description: 'Usuario PUT success',
@@ -198,7 +198,7 @@ export class UsuarioController {
   ): Promise<void> {
     await this.usuarioRepository.replaceById(id, usuario);
   }
-  //@authenticate('admin')
+  @authenticate('admin')
   @del('/usuarios/{id}')
   @response(204, {
     description: 'Usuario DELETE success',
@@ -206,7 +206,7 @@ export class UsuarioController {
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.usuarioRepository.deleteById(id);
   }
-  //@authenticate('admin')
+
   @post('/cambiar-contrasena')
   @response(200, {
     description: 'Cambio Clave Usuario',
