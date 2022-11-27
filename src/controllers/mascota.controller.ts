@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,13 +8,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,9 +24,9 @@ import {MascotaRepository} from '../repositories';
 export class MascotaController {
   constructor(
     @repository(MascotaRepository)
-    public mascotaRepository : MascotaRepository,
+    public mascotaRepository: MascotaRepository,
   ) {}
-
+  @authenticate('admin', 'Asesor')
   @post('/mascotas')
   @response(200, {
     description: 'Mascota model instance',
@@ -52,9 +53,7 @@ export class MascotaController {
     description: 'Mascota model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Mascota) where?: Where<Mascota>,
-  ): Promise<Count> {
+  async count(@param.where(Mascota) where?: Where<Mascota>): Promise<Count> {
     return this.mascotaRepository.count(where);
   }
 
@@ -106,7 +105,8 @@ export class MascotaController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Mascota, {exclude: 'where'}) filter?: FilterExcludingWhere<Mascota>
+    @param.filter(Mascota, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Mascota>,
   ): Promise<Mascota> {
     return this.mascotaRepository.findById(id, filter);
   }

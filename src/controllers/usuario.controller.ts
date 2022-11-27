@@ -69,7 +69,7 @@ export class UsuarioController {
     }
   }
   //@authenticate.skip()
-  @authenticate('admin')
+  @authenticate('admin', 'Asesor')
   @post('/usuarios')
   @response(200, {
     description: 'Usuario model instance',
@@ -114,7 +114,7 @@ export class UsuarioController {
     return this.usuarioRepository.count(where);
   }
 
-  @authenticate('admin')
+  @authenticate('admin', 'Asesor')
   @get('/usuarios')
   @response(200, {
     description: 'Array of Usuario model instances',
