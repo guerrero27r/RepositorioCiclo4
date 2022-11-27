@@ -15,22 +15,25 @@ export class EstrategiaAsesor implements AuthenticationStrategy {
   ) {}
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
-    let token = parseBearerToken(request);
+    const token = parseBearerToken(request);
+    if (!token) {
+      throw new HttpErrors[401]('Token no existe en la solicitud');
+    }
+    let datos = this.servicioAutenticacion.validarTokenJWT(token);
     if (token) {
-      let datos = this.servicioAutenticacion.validarTokenJWT(token);
       if (datos) {
-        if ((datos.data.rol = 'Asesor')) {
+        if ((datos.datos.rol = 'Asesor')) {
           let perfil: UserProfile = Object.assign({
-            id: datos.data.id,
-            nombre: datos.data.nombre,
-            apellido: datos.data.apellido,
-            correo: datos.data.correo,
-            rol: datos.data.rol,
+            id: datos.datos.id,
+            nombre: datos.datos.nombre,
+            apellido: datos.datos.apellido,
+            correo: datos.datos.correo,
+            rol: datos.datos.rol,
           });
           return perfil;
         }
       } else {
-        throw new HttpErrors[401]('Token no Valido o no tiene permisos');
+        throw new HttpErrors[401]('Token Valido pero no tiene permisos');
       }
     } else {
       throw new HttpErrors[401]('No incluyo Token');
